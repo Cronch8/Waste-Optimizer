@@ -3,7 +3,6 @@ import { PumpNetwork } from '@/components/PumpNetwork';
 import { LevelIndicator } from '@/components/LevelIndicator';
 import { EnergyChart } from '@/components/EnergyChart';
 import { ElectricityPriceChart } from '@/components/ElectricityPriceChart';
-import { SystemStats } from '@/components/SystemStats';
 import { Card } from '@/components/ui/card';
 
 export const WastewaterDashboard = () => {
@@ -16,11 +15,6 @@ export const WastewaterDashboard = () => {
           <h1 className="text-3xl font-bold text-foreground">Wastewater Management System</h1>
           <p className="text-muted-foreground">Real-time monitoring and AI-powered optimization</p>
         </header>
-
-        {/* Top Row: System Stats & AI Status */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-          <SystemStats systemState={systemState} />
-        </div>
 
         {/* Main Visualization Row */}
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
