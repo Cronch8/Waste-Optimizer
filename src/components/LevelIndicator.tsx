@@ -59,20 +59,6 @@ export const LevelIndicator = ({
           <div className="text-lg font-semibold text-foreground">{maxCapacity} m³</div>
         </div>
       </div>
-
-      {inflow !== undefined && (
-        <div className="pt-2 border-t border-border">
-          <div className="text-xs text-muted-foreground">Inflow Rate</div>
-          <div className="text-lg font-semibold text-cyan-400">{Math.round(inflow)} m³/h</div>
-        </div>
-      )}
-
-      {outflow !== undefined && (
-        <div className="pt-2 border-t border-border">
-          <div className="text-xs text-muted-foreground">Outflow Rate</div>
-          <div className="text-lg font-semibold text-cyan-400">{Math.round(outflow)} m³/h</div>
-        </div>
-      )}
     </div>
   );
 };
