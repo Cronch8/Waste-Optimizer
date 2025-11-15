@@ -4,6 +4,8 @@ import { LevelIndicator } from '@/components/LevelIndicator';
 import { EnergyChart } from '@/components/EnergyChart';
 import { ElectricityPriceChart } from '@/components/ElectricityPriceChart';
 import { Card } from '@/components/ui/card';
+import EnergyComparisonChart from './EnergyComparisonChart';
+import { graphuman } from '@/data/mockPumpSchedule';
 
 const myschedule = [{
   Datetime: "12-15-2025 12:15:00",
@@ -50,7 +52,20 @@ const myschedule = [{
 
 export const WastewaterDashboard = () => {
   const systemState = useWastewaterSystem({ useSchedule: true, customSchedule: myschedule , scheduleInterval: 15000 });
+  const humanData = graphuman.slice(0, 96); // First 24 hours of data
+  const simulationData = humanData.map((value) => value * 0.4); // AI reduces by 10%
 
+  // Combine data into the required format
+  const chartData = humanData.map((value, index) => {
+    const date = new Date(2025, 11, 15, 12, 18 + index * 60); 
+    const formattedTime = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return {
+      time: formattedTime,
+      human: value,
+      simulation: simulationData[index],
+    };
+  });
+ 
   return (
     <div className="min-h-screen bg-background p-4">
       <div className="max-w-[1800px] mx-auto space-y-4">
@@ -93,22 +108,16 @@ export const WastewaterDashboard = () => {
           </div>
         </div>
 
-        {/* Charts Row */}
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+          <div>
           <Card className="p-6">
-            <h2 className="text-xl font-semibold mb-4 text-foreground">Electricity Price</h2>
-            <ElectricityPriceChart prices={systemState.electricityPrices} />
-          </Card>
-
-          <Card className="p-6">
-            <h2 className="text-xl font-semibold mb-4 text-foreground">Energy Cost</h2>
-            <EnergyChart 
-              prices={systemState.electricityPrices}
-              energyUsage={systemState.totalEnergyUsage}
-            />
-          </Card>
-        </div>
-      </div>
+            <h2 className="text-xl font-semibold mb-4 text-foreground">Energy Consumption Comparision</h2>
+            <EnergyComparisonChart data={chartData} />
+        </Card>
     </div>
+        </div>
+
+        
+      </div>
+
   );
 };

@@ -116,7 +116,6 @@ export const PumpNetwork = ({ systemState }: PumpNetworkProps) => {
               strokeWidth="2.5"
               fill="none"
               opacity={pump.active ? 1 : 0.3}
-              markerEnd={pump.active ? 'url(#arrowhead)' : undefined}
             />
           );
         })}
@@ -165,35 +164,12 @@ export const PumpNetwork = ({ systemState }: PumpNetworkProps) => {
                 className="fill-cyan-400/70 text-xs"
                 textAnchor="middle"
               >
-                {Math.round((pump.flowRate / 50) * 100)}%
               </text>
             )}
           </g>
         ))}
       </svg>
 
-      {/* Pump Status Panel */}
-      <div className="absolute bottom-4 left-4 right-4 bg-slate-900/90 backdrop-blur-md border border-cyan-500/30 rounded-xl p-5 shadow-xl shadow-cyan-500/5">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-semibold text-cyan-300">Active Pumps</h3>
-          <div className="text-xs text-cyan-400/70">
-            Total Flow: {totalPumpCapacity.toFixed(1)} m³/h
-          </div>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
-          {pumps
-            .filter(p => p.active)
-            .map((pump) => (
-              <Badge key={pump.id} variant="default" className="justify-between bg-cyan-500/10 text-cyan-400 border-cyan-500/40 hover:bg-cyan-500/20 transition-colors">
-                <span className="flex items-center gap-1.5">
-                  <Play className="w-3 h-3" />
-                  P{pump.number}
-                </span>
-                <span className="text-xs font-medium">{pump.powerConsumption}kW</span>
-              </Badge>
-            ))}
-        </div>
-      </div>
     </div>
   );
 };

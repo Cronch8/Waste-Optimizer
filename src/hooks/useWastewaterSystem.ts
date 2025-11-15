@@ -182,7 +182,7 @@ export const useWastewaterSystem = (options: UseWastewaterSystemOptions = {}) =>
         const deltaTime = UPDATE_INTERVAL / 3600000;
         const newInflow = predictInflow();
         
-        // Choose pump configuration method
+        // Choose pump cfonfiguration method
         const optimizedPumps = useSchedule 
           ? applyPumpSchedule(prev, pumpSchedule[scheduleIndex])
           : optimizePumps(prev);
