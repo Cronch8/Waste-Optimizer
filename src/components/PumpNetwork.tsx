@@ -132,7 +132,6 @@ export const PumpNetwork = ({ systemState }: PumpNetworkProps) => {
               }
               strokeWidth="2.5"
               fill={pump.active ? 'url(#pumpGradient)' : 'slate-700'}
-              filter={pump.active ? '' : undefined}
             />
             {pump.active ? (
               <g>
@@ -152,7 +151,7 @@ export const PumpNetwork = ({ systemState }: PumpNetworkProps) => {
             )}
             <text
               y="50"
-              className={pump.active ? 'fill-green-600' : 'fill-slate-400'}
+              className={pump.active ? 'fill-green-600' : 'fill-slate-100'}
               textAnchor="middle"
               fontWeight="bold"
             >

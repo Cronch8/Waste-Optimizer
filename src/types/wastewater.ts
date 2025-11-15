@@ -29,8 +29,6 @@ export interface SystemState {
   pumps: Pump[];
   tunnel: TunnelState;
   tank: TankState;
-  totalEnergyUsage: number; // kW
-  electricityPrices: ElectricityPrice[];
-  aiStatus: 'optimizing' | 'stable' | 'warning';
-  currentCost: number; // EUR/h
+
+  
 }

@@ -100,10 +100,8 @@ export const useWastewaterSystem = (options: UseWastewaterSystemOptions = {}) =>
       maxCapacity: TANK_MAX_CAPACITY,
       outflow: 50,
     },
-    totalEnergyUsage: 45,
-    electricityPrices: generateElectricityPrices(),
-    aiStatus: 'stable',
-    currentCost: 0,
+  
+
   });
 
   // Use custom schedule if provided, otherwise generate mock data
@@ -114,27 +112,12 @@ export const useWastewaterSystem = (options: UseWastewaterSystemOptions = {}) =>
 
   // AI Optimization Logic
   const optimizePumps = useCallback((state: SystemState): Pump[] => {
-    const currentPrice = state.electricityPrices[state.electricityPrices.length - 1].price;
+
     const tunnelLevel = state.tunnel.level;
     const tankLevel = state.tank.level;
     const inflow = state.tunnel.inflow;
     
     let targetActivePumps = 1;
-    
-    if (tunnelLevel > TUNNEL_CRITICAL) {
-      targetActivePumps = Math.min(6, Math.ceil(tunnelLevel / 15));
-    } else if (tankLevel > TANK_CRITICAL) {
-      targetActivePumps = 1;
-    } else {
-      if (currentPrice < 0.12) {
-        targetActivePumps = Math.max(2, Math.ceil(inflow / 100));
-      } else if (currentPrice > 0.30) {
-        targetActivePumps = Math.max(1, Math.ceil(tunnelLevel / 40));
-      } else {
-        targetActivePumps = Math.max(1, Math.ceil(inflow / 120));
-      }
-    }
-    
     const newPumps = state.pumps.map((pump, index) => ({
       ...pump,
       active: index < targetActivePumps,
@@ -210,32 +193,7 @@ export const useWastewaterSystem = (options: UseWastewaterSystemOptions = {}) =>
           (prev.tank.level / 100) * TANK_MAX_CAPACITY + tankVolumeChange
         ));
         const newTankLevel = (newTankVolume / TANK_MAX_CAPACITY) * 100;
-        
-        const totalEnergy = optimizedPumps
-          .filter(p => p.active)
-          .reduce((sum, p) => sum + p.powerConsumption, 0);
-        
-        const currentPrice = prev.electricityPrices[prev.electricityPrices.length - 1].price;
-        const currentCost = totalEnergy * currentPrice;
-        
-        let aiStatus: 'optimizing' | 'stable' | 'warning' = 'stable';
-        if (newTunnelLevel > TUNNEL_CRITICAL || newTankLevel > TANK_CRITICAL) {
-          aiStatus = 'warning';
-        } else if (currentPrice > 0.25 && optimizedPumps.filter(p => p.active).length > 2) {
-          aiStatus = 'optimizing';
-        }
-        
-        let newPrices = [...prev.electricityPrices];
-        if (Math.random() < 0.1) {
-          const lastPrice = newPrices[newPrices.length - 1];
-          newPrices.push({
-            timestamp: new Date(lastPrice.timestamp.getTime() + 60 * 60 * 1000),
-            price: Math.max(0.05, Math.min(0.5, lastPrice.price + (Math.random() - 0.5) * 0.1)),
-          });
-          if (newPrices.length > 25) {
-            newPrices = newPrices.slice(-25);
-          }
-        }
+     
         
         return {
           pumps: optimizedPumps,
@@ -248,10 +206,9 @@ export const useWastewaterSystem = (options: UseWastewaterSystemOptions = {}) =>
             ...prev.tank,
             level: newTankLevel,
           },
-          totalEnergyUsage: totalEnergy,
-          electricityPrices: newPrices,
-          aiStatus,
-          currentCost,
+
+          
+        
         };
       });
     }, UPDATE_INTERVAL);
