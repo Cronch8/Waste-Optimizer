@@ -46,7 +46,6 @@ export const PumpNetwork = ({ systemState }: PumpNetworkProps) => {
             className="fill-cyan-950/50 stroke-cyan-400"
             strokeWidth="2.5"
             rx="8"
-            filter="url(#glow)"
           />
           <text x="50" y="30" className="fill-cyan-300 text-sm" textAnchor="middle" fontWeight="bold">
             F1 TUNNEL
@@ -68,7 +67,6 @@ export const PumpNetwork = ({ systemState }: PumpNetworkProps) => {
             className="fill-cyan-950/50 stroke-cyan-400"
             strokeWidth="2.5"
             rx="8"
-            filter="url(#glow)"
           />
           <text x="60" y="35" className="fill-cyan-300 text-sm" textAnchor="middle" fontWeight="bold">
             F2 TANK
@@ -83,7 +81,7 @@ export const PumpNetwork = ({ systemState }: PumpNetworkProps) => {
         </g>
 
         {/* Connection lines from tunnel to pumps - curved paths */}
-        {pumps.slice(0, 4).map((pump) => {
+        {pumps.slice(0, 8).map((pump) => {
           const startX = 150;
           const startY = 290;
           const endX = pump.x - 30;
@@ -94,7 +92,7 @@ export const PumpNetwork = ({ systemState }: PumpNetworkProps) => {
             <path
               key={`tunnel-line-${pump.id}`}
               d={`M ${startX} ${startY} Q ${midX} ${startY} ${endX} ${endY}`}
-              className={pump.active ? 'stroke-cyan-400' : 'stroke-slate-600'}
+              className={pump.active ? 'stroke-green-400' : 'stroke-slate-600'}
               strokeWidth="2.5"
               fill="none"
               opacity={pump.active ? 1 : 0.3}
@@ -114,7 +112,7 @@ export const PumpNetwork = ({ systemState }: PumpNetworkProps) => {
             <path
               key={`pump-tank-${pump.id}`}
               d={`M ${startX} ${startY} Q ${midX} ${endY} ${endX} ${endY}`}
-              className={pump.active ? 'stroke-cyan-400' : 'stroke-slate-600'}
+              className={pump.active ? 'stroke-green-400' : 'stroke-slate-600'}
               strokeWidth="2.5"
               fill="none"
               opacity={pump.active ? 1 : 0.3}
@@ -130,12 +128,12 @@ export const PumpNetwork = ({ systemState }: PumpNetworkProps) => {
               r="28"
               className={
                 pump.active
-                  ? 'stroke-cyan-400'
+                  ? 'stroke-green-400'
                   : 'stroke-slate-600'
               }
               strokeWidth="2.5"
-              fill={pump.active ? 'url(#pumpGradient)' : '#334155'}
-              filter={pump.active ? 'url(#glow)' : undefined}
+              fill={pump.active ? 'url(#pumpGradient)' : 'slate-700'}
+              filter={pump.active ? '' : undefined}
             />
             {pump.active ? (
               <g>
@@ -155,7 +153,7 @@ export const PumpNetwork = ({ systemState }: PumpNetworkProps) => {
             )}
             <text
               y="50"
-              className="fill-cyan-300 text-sm"
+              className={pump.active ? 'fill-green-600' : 'fill-slate-400'}
               textAnchor="middle"
               fontWeight="bold"
             >

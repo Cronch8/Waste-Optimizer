@@ -5,8 +5,51 @@ import { EnergyChart } from '@/components/EnergyChart';
 import { ElectricityPriceChart } from '@/components/ElectricityPriceChart';
 import { Card } from '@/components/ui/card';
 
+const myschedule = [{
+  Datetime: "12-15-2025 12:15:00",
+  Pumps:
+    [
+      {id:1, active:true},
+      {id:2, active:false},
+      {id:3, active:true},
+      {id:4, active:false},
+      {id:5, active:false},
+      {id:6, active:false},
+      {id:7, active:false},
+      {id:8, active:true},
+    ]
+  },
+  {
+  Datetime: "12-15-2025 12:30:00",
+  Pumps:
+    [
+      {id:1, active:true},
+      {id:2, active:false},
+      {id:3, active:false},
+      {id:4, active:true},
+      {id:5, active:false},
+      {id:6, active:false},
+      {id:7, active:false},
+      {id:8, active:false},
+    ]
+  },
+  {
+  Datetime: "12-15-2025 12:45:00",
+  Pumps:
+    [
+      {id:1, active:true},
+      {id:2, active:false},
+      {id:3, active:false},
+      {id:4, active:false},
+      {id:5, active:false},
+      {id:6, active:false},
+      {id:7, active:true},
+      {id:8, active:false},
+    ]
+  }];
+
 export const WastewaterDashboard = () => {
-  const systemState = useWastewaterSystem();
+  const systemState = useWastewaterSystem({ useSchedule: true, customSchedule: myschedule , scheduleInterval: 15000 });
 
   return (
     <div className="min-h-screen bg-background p-4">
