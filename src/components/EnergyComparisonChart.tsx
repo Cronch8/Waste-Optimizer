@@ -40,7 +40,7 @@ const EnergyComparisonChart: React.FC<EnergyComparisonChartProps> = ({ data }) =
             dataKey="human"
             stroke="#8884d8"
             strokeWidth={2}
-            name="Human Electricity Price"
+            name="One"
             dot={false}
           />
           <Line
@@ -48,7 +48,7 @@ const EnergyComparisonChart: React.FC<EnergyComparisonChartProps> = ({ data }) =
             dataKey="simulation"
             stroke="#82ca9d"
             strokeWidth={2}
-            name="Our AI Simulation"
+            name="Two"
             dot={false}
           />
         </LineChart>
