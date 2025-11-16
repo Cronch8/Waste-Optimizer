@@ -1,4 +1,4 @@
-let dataArray = [
+let dataArray: realData[] = [
     { inflow: 1454.531128, priceNormal: 0.291 , priceHigh: 3.383 },
     { inflow: 1454.531128, priceNormal: 0.291 , priceHigh: 3.383 },
     { inflow: 1428.02063,  priceNormal: 0.291 , priceHigh: 3.383 },
@@ -1538,26 +1538,117 @@ let dataArray = [
 ]
 const initialVolume = 10064.98926;
 
-//================
-// the simulation
-//================
+interface realData {
+    inflow: number,
+    priceNormal: number,
+    priceHigh: number
+}
 
 interface simData {
     currentVolume: number,
+    outputVolume?: number,
     electricityCostTotal: number,
+    electricityUsage?: number,
 } 
 
-// returns cost of pumping
-function pumpByVolume(simData, waterVolume, currentData) {
-    simData.electricityCostTotal = waterVolume * currentData.priceNormal;
-    simData.currentTunnelVolume -= waterVolume;
+interface pumpState {
+    name: string,
+    running: boolean,
+    ranPreviousTick: boolean,
+    maxPumpVolume: number,
+    maxPumpPower: number,
+};
+
+const pumpStates: pumpState[] = [
+    {
+        name: "1.1",
+        running: false,
+        ranPreviousTick: false,
+        maxPumpVolume: 1500 /4,
+        maxPumpPower: 200,
+    },
+    {
+        name: "1.2",
+        running: false,
+        ranPreviousTick: false,
+        maxPumpVolume: 3000 /4,
+        maxPumpPower: 400,
+    },
+    {
+        name: "1.3",
+        running: false,
+        ranPreviousTick: false,
+        maxPumpVolume: 3000 /4,
+        maxPumpPower: 400,
+    },
+    {
+        name: "1.4",
+        running: false,
+        ranPreviousTick: false,
+        maxPumpVolume: 3000 /4,
+        maxPumpPower: 400,
+    },
+    {
+        name: "2.1",
+        running: false,
+        ranPreviousTick: false,
+        maxPumpVolume: 1500 /4,
+        maxPumpPower: 200,
+    },
+    {
+        name: "2.2",
+        running: false,
+        ranPreviousTick: false,
+        maxPumpVolume: 3000 /4,
+        maxPumpPower: 400,
+    },
+    {
+        name: "2.3",
+        running: false,
+        ranPreviousTick: false,
+        maxPumpVolume: 3000 /4,
+        maxPumpPower: 400,
+    },
+    {
+        name: "2.4",
+        running: false,
+        ranPreviousTick: false,
+        maxPumpVolume: 3000 /4,
+        maxPumpPower: 400,
+    },
+]
+
+const randomFactor = 2.1;
+let currentParameters = {
+    constantFlow: 466.84391349074394,
+    currentVolumePumping: -0.06722047732278012,
+    currentVolumePricePumping: 0.08022708169812776,
+    predictiveInflow24h: 0.00,
+    predictivePrice24h: 0.0,
 }
 
-function simulateWithParameters(simProps)
-{
+
+let bestParameters = currentParameters;
+let simData: simData;
+let bestSimData: simData = {
+    currentVolume: initialVolume,
+    electricityUsage: 0,
+    electricityCostTotal: Number.POSITIVE_INFINITY,
+};
+
+let iteration = 0;
+while (iteration < 100000) {
+    currentParameters.constantFlow += randomFactor * 1 * (Math.random() - 0.5)
+    currentParameters.currentVolumePumping += randomFactor *  0.001 * (Math.random() - 0.5)
+    currentParameters.currentVolumePricePumping += randomFactor * 0.001 * (Math.random() - 0.5)
+    currentParameters.predictiveInflow24h += randomFactor * 0.001 * (Math.random() - 0.5)
+    currentParameters.predictivePrice24h += randomFactor * 0.001 * (Math.random() - 0.5)
+
     const predictionSampleCount = 24*4; // there are 4 data samples per hour
     const simData: simData = {
         currentVolume: initialVolume,
+        electricityUsage: 0,
+        outputVolume: 0,
         electricityCostTotal: 0,
     };
 
@@ -1566,50 +1657,61 @@ function simulateWithParameters(simProps)
          currentTimeStep+predictionSampleCount < dataArray.length;
          currentTimeStep++)
      {
-        const realData = dataArray[currentTimeStep];
-        const upcomingDayRainAmmount = dataArray[currentTimeStep + predictionSampleCount];
-        pumpByVolume(simData, simProps.constantFlow, realData);
-        pumpByVolume(simData, simProps.currentVolumePumping * simData.currentVolume, realData);
-        pumpByVolume(simData, simProps.currentVolumePricePumping * simData.currentVolume * realData.priceNormal, realData);
-        pumpByVolume(simData, simProps.predictiveInflow * upcomingDayRainAmmount.inflow, realData);
-        simData.currentVolume += realData.inflow;
+        const currentData = dataArray[currentTimeStep];
+
+        // THIS WILL BE INJECTED INTO THE CODE FORM A ML LIBRARY
+        let requestedPumpVolume = 0;
+
+        requestedPumpVolume += currentParameters.predictivePrice24h * dataArray[currentTimeStep + 24 * 4].priceNormal;
+
+        // pump simulation
+        let resolvedPumpVolume = requestedPumpVolume;
+        simData.currentVolume -= requestedPumpVolume;
+        let pumpedVolume = 0;
+        const delta = requestedPumpVolume - simData.currentVolume
+        for (let pump of pumpStates) {
+            if (pump.running) {
+                resolvedPumpVolume -= pump.maxPumpVolume;
+            }
+        }
+        for (let pump of pumpStates) {
+            if (pump.maxPumpPower/2 < resolvedPumpVolume) {
+                pump.running = true;
+                resolvedPumpVolume -= pump.maxPumpVolume;
+            } else if (pump.maxPumpPower/2 > resolvedPumpVolume) {
+                pump.running = false;
+                resolvedPumpVolume += pump.maxPumpVolume;
+            }
+        }
+        for (let pump of pumpStates) {
+            if (pump.running && pump.ranPreviousTick) {
+                pumpedVolume -= pump.maxPumpPower;
+                simData.electricityUsage += pump.maxPumpPower /4; // divide to get kW/h
+            } else if (pump.running !== !pump.ranPreviousTick) { // means it's starting or stopping
+                pumpedVolume -= pump.maxPumpPower / 2;
+                simData.electricityUsage += pump.maxPumpPower /4 / 2;
+            }
+            pump.ranPreviousTick = pump.running;
+        }
+        simData.currentVolume -= pumpedVolume;
+        simData.outputVolume = pumpedVolume;
+        simData.electricityCostTotal += simData.electricityUsage * currentData.priceNormal;
+        // pushish it for overfilling
+        if (simData.currentVolume > 85_000) {
+            simData.electricityCostTotal += simData.currentVolume;
+        }
+        simData.currentVolume += currentData.inflow;
         currentTimeStep++;
+     }
+
+    // save best results
+    if (simData.electricityCostTotal >= bestSimData.electricityCostTotal) {
+        currentParameters = JSON.parse(JSON.stringify(bestParameters));
+    } else {
+        console.log("randomness:", randomFactor ,"new lowest cost:", Math.round(bestSimData.electricityCostTotal));
+        bestParameters = JSON.parse(JSON.stringify(currentParameters));
+        bestSimData = JSON.parse(JSON.stringify(simData));
     }
-    return simData;
-}
-
-//================
-// the evolution
-//================
-
-let currentParameters = {
-    constantFlow: 500,
-    currentVolumePumping: 0.001,
-    currentVolumePricePumping: 0.05,
-    predictiveInflow: 0.05,
-}
-let prevParameters = currentParameters;
-let simData: simData;
-let prevSimData: simData = {
-    currentVolume: initialVolume,
-    electricityCostTotal: 99999999999999,
-};
-
-let iteration = 0;
-while (iteration < 100) {
-    currentParameters.constantFlow += 1 * (Math.random() - 0.5)
-    currentParameters.currentVolumePumping += 0.001 * (Math.random() - 0.5)
-    currentParameters.currentVolumePricePumping += 0.001 * (Math.random() - 0.5)
-    currentParameters.predictiveInflow += 0.005 * (Math.random() - 0.5)
-    simData = simulateWithParameters(currentParameters);
-
-    if (iteration % 10 == 1) {
-        console.log("simulation cost:", Math.round(prevSimData.electricityCostTotal));
-    }
-    if (simData.electricityCostTotal > prevSimData.electricityCostTotal) {
-        currentParameters = JSON.parse(JSON.stringify(prevParameters));
-    }
-    prevParameters = JSON.parse(JSON.stringify(currentParameters));
-    prevSimData = JSON.parse(JSON.stringify(simData));
     iteration++;
 }
+console.log(bestParameters);
