@@ -1,73 +1,86 @@
-# Welcome to your Lovable project
+# Pump Station Optimization Platform
 
-## Project info
+A full-stack system for simulating, visualizing, and optimizing
+wastewater pump station behavior using machine learning and
+mathematical optimization techniques.
 
-**URL**: https://lovable.dev/projects/f307ab3c-0ff9-4b75-8f70-d31a358ab91b
+## Overview
 
-## How can I edit this code?
+This project explores how smarter pump control can reduce energy
+costs at large wastewater treatment facilities. Using real
+operational data, a simulator, and an interactive frontend, the
+system demonstrates how optimization algorithms and ML models
+can schedule pump activity more efficiently.
 
-There are several ways of editing your application.
+At the Blominmäki pump station alone, weekly operating costs can
+exceed €13,000. Our prototype shows that smarter scheduling
+can cut that by roughly €2,000 per week — about **17% savings**.
 
-**Use Lovable**
+### Visualizer Frontend
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/f307ab3c-0ff9-4b75-8f70-d31a358ab91b) and start prompting.
+A Vite + React + TypeScript interface that shows:
 
-Changes made via Lovable will be committed automatically to this repo.
+* Pump networks and container levels
+* Pump states and switching events
+* Energy usage and comparisons
+* Interactive dashboards
 
-**Use your preferred IDE**
+## Getting Started
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Requirements
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+* Node 18+
+* Python 3.10+
+* Bun (optional)
 
-Follow these steps:
+### Install
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+```bash
+npm install
+# or
+bun install
+```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### Run Frontend
 
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+### Run Simulator
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+From the `src/sim` directory:
 
-**Use GitHub Codespaces**
+```bash
+python3 main.py
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+Use other scripts for experiments.
 
-## What technologies are used for this project?
+## How Optimization Works
 
-This project is built with:
+### Greedy Algorithm
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+Calculates pump activity decisions based on immediate energy cost and system state.
+Produces significant savings even without global optimization.
 
-## How can I deploy this project?
+### Mixed Integer Linear Programming
 
-Simply open [Lovable](https://lovable.dev/projects/f307ab3c-0ff9-4b75-8f70-d31a358ab91b) and click on Share -> Publish.
+Computes the globally optimal pump schedule over a given horizon.
+This requires more compute but provides the theoretical best solution.
 
-## Can I connect a custom domain to my Lovable project?
+### Machine Learning Path
 
-Yes, you can!
+The long-term goal is to train a neural model on MILP-generated optimal schedules.
+With multi-year data, the model can:
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+* Predict near-optimal decisions instantly
+* Reduce compute requirements
+* Adapt to varying load conditions
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+## Vision
+
+With more data and compute resources, this platform can
+evolve into a fully automated, energy‑aware control system
+for wastewater infrastructure across Finland — and beyond.
+
