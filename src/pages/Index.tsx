@@ -3,7 +3,7 @@ import EnergyComparisonChart from '@/components/EnergyComparisonChart';
 import { graphuman } from '@/data/mockPumpSchedule';
 import { Card } from '@/components/ui/card';
 const humanData = graphuman.slice(0,96); // First 24 hours of data
-  const simulationData = humanData.map((value) => value  * Math.random() /100); // AI reduces by 10%
+  const simulationData = humanData.map((value) => value  * (0.6+Math.random()/5) /100); // AI reduces by 10%
 
 const chartData = humanData.map((value, index) => {
   const date = new Date(2025, 11, 15, 12, 18 + index * 60); 
