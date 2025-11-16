@@ -456,7 +456,7 @@ def main():
     
     # Load data
     print("\nLoading data...")
-    data = load_data('data.csv')  # Change to your CSV filename
+    data = load_data('src/sim/data.csv')  # Change to your CSV filename
     print(f"Loaded {len(data)} time intervals ({len(data)/96:.1f} days)")
     
     # Get initial volume from first row
