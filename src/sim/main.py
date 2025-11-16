@@ -1546,159 +1546,96 @@ pumpStates = [
         "name": "1.1",
         "running": False,
         "ranPreviousTick": False,
-        "maxPumpVolume": 1500 / 4,
-        "maxPumpPower": 200,
+        "maxPumpVolume": 1560 / 4,
+        "maxPumpPower": 185,
     },
     {
         "name": "1.2",
         "running": False,
         "ranPreviousTick": False,
-        "maxPumpVolume": 3000 / 4,
-        "maxPumpPower": 400,
+        "maxPumpVolume": 3170 / 4,
+        "maxPumpPower": 370,
     },
     {
         "name": "1.3",
         "running": False,
         "ranPreviousTick": False,
-        "maxPumpVolume": 3000 / 4,
-        "maxPumpPower": 400,
+       "maxPumpVolume": 3170 / 4,
+        "maxPumpPower": 370,
     },
     {
         "name": "1.4",
         "running": False,
         "ranPreviousTick": False,
-        "maxPumpVolume": 3000 / 4,
-        "maxPumpPower": 400,
+        "maxPumpVolume": 3170 / 4,
+        "maxPumpPower": 370,
     },
     {
         "name": "2.1",
         "running": False,
         "ranPreviousTick": False,
-        "maxPumpVolume": 1500 / 4,
-        "maxPumpPower": 200,
+        "maxPumpVolume": 1560 / 4,
+        "maxPumpPower": 185,
     },
     {
         "name": "2.2",
         "running": False,
         "ranPreviousTick": False,
-        "maxPumpVolume": 3000 / 4,
-        "maxPumpPower": 400,
+        "maxPumpVolume": 3170 / 4,
+        "maxPumpPower": 370,
     },
     {
         "name": "2.3",
         "running": False,
         "ranPreviousTick": False,
-        "maxPumpVolume": 3000 / 4,
-        "maxPumpPower": 400,
+        "maxPumpVolume": 3170 / 4,
+        "maxPumpPower": 370,
     },
     {
         "name": "2.4",
         "running": False,
         "ranPreviousTick": False,
-        "maxPumpVolume": 3000 / 4,
-        "maxPumpPower": 400,
+        "maxPumpVolume": 3170 / 4,
+        "maxPumpPower": 370,
     },
 ]
 
 
 
-random_factor = 0.2
+
 initialVolume = 10_000
 
-current_parameters = {
-    "constantFlow": 466.84391349074394,
-    "currentVolumePumping": -0.06722047732278012,
-    "currentVolumePricePumping": 0.08022708169812776,
-    "predictiveInflow24h": 0.0,
-    "predictivePrice24h": 0.0,
-}
+prediction_sample_count = 24 * 4
 
-best_parameters = copy.deepcopy(current_parameters)
-
-best_sim_data = {
-    "currentVolume": initialVolume,
-    "electricityUsage": 0,
-    "electricityCostTotal": 9999999999.0,
-}
-
-iteration = 0
-
-while iteration < 10000:
-    current_parameters["constantFlow"] += random_factor * 1 * (random.random() - 0.5)
-    current_parameters["currentVolumePumping"] += random_factor * 0.001 * (random.random() - 0.5)
-    current_parameters["currentVolumePricePumping"] += random_factor * 0.001 * (random.random() - 0.5)
-    current_parameters["predictiveInflow24h"] += random_factor * 0.001 * (random.random() - 0.5)
-    current_parameters["predictivePrice24h"] += random_factor * 0.001 * (random.random() - 0.5)
-
-    prediction_sample_count = 24 * 4
-
-    sim_data = {
+sim_data = {
         "currentVolume": initialVolume,
         "electricityUsage": 0,
         "outputVolume": 0,
         "electricityCostTotal": 0,
-    }
+}
 
-    current_time_step = 0
-    while current_time_step + prediction_sample_count < len(dataArray):
-        current_data = dataArray[current_time_step]
+current_time_step = 0
+while current_time_step + prediction_sample_count < len(dataArray):
+    current_data = dataArray[current_time_step]
 
-        requested_pump_volume = 0
-        requested_pump_volume += (
-            current_parameters["predictivePrice24h"]
-            * dataArray[current_time_step + 24 * 4]["priceNormal"]
-        )
+    # apply pump effects
+    for pump in pumpStates:
+        if pump["running"] and pump["ranPreviousTick"]:
+            pumped_volume -= pump["maxPumpPower"]
+            sim_data["electricityUsage"] += pump["maxPumpPower"] / 4
+        elif pump["running"] != (not pump["ranPreviousTick"]):
+            pumped_volume -= pump["maxPumpPower"] / 2
+            sim_data["electricityUsage"] += pump["maxPumpPower"] / 2 / 4
 
-        resolved_pump_volume = requested_pump_volume
-        sim_data["currentVolume"] -= requested_pump_volume
+        pump["ranPreviousTick"] = pump["running"]
 
-        pumped_volume = 0
+    sim_data["currentVolume"] -= pumped_volume
+    sim_data["outputVolume"] = pumped_volume
+    sim_data["electricityCostTotal"] += sim_data["electricityUsage"] * current_data["priceNormal"]
 
-        # subtract already running pumps
-        for pump in pumpStates:
-            if pump["running"]:
-                resolved_pump_volume -= pump["maxPumpVolume"]
+    # punish for overfilling
+    if sim_data["currentVolume"] > 85000:
+        sim_data["electricityCostTotal"] += sim_data["currentVolume"]
 
-        # start/stop pumps
-        for pump in pumpStates:
-            if pump["maxPumpPower"] / 2 < resolved_pump_volume:
-                pump["running"] = True
-                resolved_pump_volume -= pump["maxPumpVolume"]
-            elif pump["maxPumpPower"] / 2 > resolved_pump_volume:
-                pump["running"] = False
-                resolved_pump_volume += pump["maxPumpVolume"]
-
-        # apply pump effects
-        for pump in pumpStates:
-            if pump["running"] and pump["ranPreviousTick"]:
-                pumped_volume -= pump["maxPumpPower"]
-                sim_data["electricityUsage"] += pump["maxPumpPower"] / 4
-            elif pump["running"] != (not pump["ranPreviousTick"]):
-                pumped_volume -= pump["maxPumpPower"] / 2
-                sim_data["electricityUsage"] += pump["maxPumpPower"] / 8
-
-            pump["ranPreviousTick"] = pump["running"]
-
-        sim_data["currentVolume"] -= pumped_volume
-        sim_data["outputVolume"] = pumped_volume
-        sim_data["electricityCostTotal"] += sim_data["electricityUsage"] * current_data["priceNormal"]
-
-        if sim_data["currentVolume"] > 85000:
-            sim_data["electricityCostTotal"] += sim_data["currentVolume"]
-
-        sim_data["currentVolume"] += current_data["inflow"]
-
-        current_time_step += 1
-
-    # accept or reject parameters
-    if sim_data["electricityCostTotal"] >= best_sim_data["electricityCostTotal"]:
-        current_parameters = copy.deepcopy(best_parameters)
-    else:
-        print("randomness:", random_factor, "new lowest cost:", round(best_sim_data["electricityCostTotal"]))
-        best_parameters = copy.deepcopy(current_parameters)
-        best_sim_data = copy.deepcopy(sim_data)
-
-    iteration += 1
-
-print(best_parameters)
+    sim_data["currentVolume"] += current_data["inflow"]
 

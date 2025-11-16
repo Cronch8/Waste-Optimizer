@@ -31,7 +31,7 @@ class Pump:
             electricity_usage = self.max_pump_power / 4
         elif self.running != self.ran_previous_tick:
             pumped_volume = self.max_pump_power / 2
-            electricity_usage = self.max_pump_power / 2 / 4
+            electricity_usage = self.max_pump_power / 4 / 2
         else:
             pumped_volume = 0
             electricity_usage = 0
@@ -65,7 +65,6 @@ class SimulationState:
         """Apply cost penalty for exceeding volume threshold."""
         if self.current_volume > threshold:
             self.electricity_cost_total += self.current_volume
-            print("Overfilled")
 
 
 class PumpSystem:
