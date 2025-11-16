@@ -64,6 +64,8 @@ Use other scripts for experiments.
 Calculates pump activity decisions based on immediate energy cost and system state.
 Produces significant savings even without global optimization.
 
+Run `greedy.py` and it optimizes the given data and outputs a CSV for both high and low price conditions.
+
 ### Mixed Integer Linear Programming
 
 Computes the globally optimal pump schedule over a given horizon.
